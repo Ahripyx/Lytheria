@@ -1,18 +1,21 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using Lytheria.commands;
 using Lytheria.config;
 
 namespace Lytheria
 {
-    internal class Program
+    public sealed class Program
     {
         // Discord client instance to be used throughout the application.
-        private static DiscordClient client { get; set; }
+        public static DiscordClient Client { get; set; }
         // CommandsNextExtension instance to handle commands.
-        private static CommandsNextExtension commands { get; set; }
+        public static CommandsNextExtension Commands { get; set; }
 
         static async Task Main(string[] args)
         {
@@ -27,9 +30,14 @@ namespace Lytheria
                 AutoReconnect = true,
             };
 
-            client = new DiscordClient(discordConfig);
+            Client = new DiscordClient(discordConfig);
 
-            client.Ready += Client_Ready;
+            Client.UseInteractivity(new InteractivityConfiguration() 
+            {
+                Timeout = TimeSpan.FromMinutes(2)
+            });
+
+            Client.Ready += Client_Ready;
 
             var commandsConfig = new CommandsNextConfiguration()
             {
@@ -39,11 +47,11 @@ namespace Lytheria
                 EnableDefaultHelp = false
             };
 
-            commands = client.UseCommandsNext(commandsConfig);
+            Commands = Client.UseCommandsNext(commandsConfig);
 
-            commands.RegisterCommands<TestCommands>();
+            Commands.RegisterCommands<TestCommands>();
 
-            await client.ConnectAsync();
+            await Client.ConnectAsync();
             await Task.Delay(-1);
         }
 
