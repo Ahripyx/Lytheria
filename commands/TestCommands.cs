@@ -13,6 +13,13 @@ namespace Lytheria.commands
     public class TestCommands : BaseCommandModule
     {
         [Command("test")]
+        [Cooldown(5, 10, CooldownBucketType.User)]
+        public async Task TestCommand(CommandContext ctx)
+        {
+            await ctx.Channel.SendMessageAsync($"Hello {ctx.User.Username}, this is a test command!").ConfigureAwait(false);
+        }
+
+        [Command("epictest")]
         public async Task FirstCommand(CommandContext ctx)
         {
             var interactivity = Program.Client.GetInteractivity();
