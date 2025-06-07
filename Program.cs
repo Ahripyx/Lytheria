@@ -2,6 +2,7 @@
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.EventArgs;
+using Lytheria.commands;
 using Lytheria.config;
 
 namespace Lytheria
@@ -29,6 +30,18 @@ namespace Lytheria
             client = new DiscordClient(discordConfig);
 
             client.Ready += Client_Ready;
+
+            var commandsConfig = new CommandsNextConfiguration()
+            {
+                StringPrefixes = new string[] { jsonReader.prefix },
+                EnableMentionPrefix = true,
+                EnableDms = true,
+                EnableDefaultHelp = false
+            };
+
+            commands = client.UseCommandsNext(commandsConfig);
+
+            commands.RegisterCommands<TestCommands>();
 
             await client.ConnectAsync();
             await Task.Delay(-1);
