@@ -8,7 +8,9 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.SlashCommands;
 using Lytheria.commands;
+using Lytheria.Commands.Slash;
 using Lytheria.config;
 
 namespace Lytheria
@@ -52,11 +54,14 @@ namespace Lytheria
                 EnableDefaultHelp = false
             };
 
+            var slashCommandsConfiguration = Client.UseSlashCommands();
+
             Commands = Client.UseCommandsNext(commandsConfig);
 
             Commands.CommandErrored += CommandEventHandler;
 
             Commands.RegisterCommands<TestCommands>();
+            slashCommandsConfiguration.RegisterCommands<BasicSL>();
 
             await Client.ConnectAsync();
             await Task.Delay(-1);

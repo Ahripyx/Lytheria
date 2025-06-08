@@ -45,6 +45,9 @@
     <Reference Include="DSharpPlus.Interactivity, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\DSharpPlus.Interactivity.4.5.1\lib\netstandard2.0\DSharpPlus.Interactivity.dll</HintPath>
     </Reference>
+    <Reference Include="DSharpPlus.SlashCommands, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DSharpPlus.SlashCommands.4.5.1\lib\netstandard2.0\DSharpPlus.SlashCommands.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.5.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -142,18 +145,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="commands\Basic.cs" />
-    <Compile Include="commands\Level.cs" />
-    <Compile Include="commands\TestCommands.cs" />
-    <Compile Include="config\JSONReader.cs" />
-    <Compile Include="other\CardSystem.cs" />
+    <Compile Include="Commands\Prefix\Basic.cs" />
+    <Compile Include="Commands\Prefix\Level.cs" />
+    <Compile Include="Commands\Prefix\TestCommands.cs" />
+    <Compile Include="Commands\Slash\BasicSL.cs" />
+    <Compile Include="Config\JSONReader.cs" />
+    <Compile Include="Other\CardSystem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="config\config.json" />
+    <None Include="Config\config.json" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
