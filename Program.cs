@@ -9,11 +9,16 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Lavalink;
+using DSharpPlus.Net;
 using DSharpPlus.SlashCommands;
 using Lytheria.commands;
 using Lytheria.Commands.Prefix;
 using Lytheria.Commands.Slash;
 using Lytheria.config;
+
+// Code by SamJesus8
+// Edited by: Ahripyx
 
 namespace Lytheria
 {
@@ -64,14 +69,36 @@ namespace Lytheria
 
             Commands.CommandErrored += CommandEventHandler;
 
+            // Registering prefix commands
             Commands.RegisterCommands<TestCommands>();
             Commands.RegisterCommands<Basic>();
             Commands.RegisterCommands<DiscordComponentCommands>();
 
+            // Registering slash commands
             slashCommandsConfiguration.RegisterCommands<BasicSL>();
             slashCommandsConfiguration.RegisterCommands<CalculatorSL>();
+            slashCommandsConfiguration.RegisterCommands<MusicSL>();
 
+            // Lavalink Configuration (change configs as updates release)
+            var endpoint = new ConnectionEndpoint
+            {
+                Hostname = "lava-all.ajieblogs.eu.org",
+                Port = 443,
+                Secured = true
+            };
+
+            var lavalinkConfig = new LavalinkConfiguration
+            {
+                Password = "https://dsc.gg/ajidevserver",
+                RestEndpoint = endpoint,
+                SocketEndpoint = endpoint
+            };
+
+            var lavalink = Client.UseLavalink();
+
+            // Connects to get the bot online
             await Client.ConnectAsync();
+            await lavalink.ConnectAsync(lavalinkConfig);
             await Task.Delay(-1);
         }
 

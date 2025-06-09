@@ -45,6 +45,9 @@
     <Reference Include="DSharpPlus.Interactivity, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\DSharpPlus.Interactivity.4.5.1\lib\netstandard2.0\DSharpPlus.Interactivity.dll</HintPath>
     </Reference>
+    <Reference Include="DSharpPlus.Lavalink, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DSharpPlus.Lavalink.4.5.1\lib\netstandard2.0\DSharpPlus.Lavalink.dll</HintPath>
+    </Reference>
     <Reference Include="DSharpPlus.SlashCommands, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\DSharpPlus.SlashCommands.4.5.1\lib\netstandard2.0\DSharpPlus.SlashCommands.dll</HintPath>
     </Reference>
@@ -150,6 +153,7 @@
     <Compile Include="Commands\Prefix\TestCommands.cs" />
     <Compile Include="Commands\Slash\BasicSL.cs" />
     <Compile Include="Commands\Slash\CalculatorSL.cs" />
+    <Compile Include="Commands\Slash\MusicSL.cs" />
     <Compile Include="Config\JSONReader.cs" />
     <Compile Include="Other\CardSystem.cs" />
     <Compile Include="Program.cs" />
