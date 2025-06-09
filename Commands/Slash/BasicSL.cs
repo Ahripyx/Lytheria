@@ -37,5 +37,23 @@ namespace Lytheria.Commands.Slash
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedMessage));
         }
+
+        [SlashCommand("discordParameters", "This slash command allows passing of DiscordParameters")]
+        public async Task DiscordParameters(InteractionContext ctx, [Option("user", "Pass in a discord user")] DiscordUser user, [Option("attachment", "Upload a file here.")] DiscordAttachment file)
+        {
+            await ctx.DeferAsync();
+
+            var member = (DiscordMember)user;
+
+            var embedMessage = new DiscordEmbedBuilder
+            {
+                Title = "Discord Parameters Test",
+                Description = $"You selected user: {member.Nickname}\n" +
+                              $"You uploaded a file: {file.FileName} {file.FileSize}",
+                Color = DiscordColor.Blue
+            };
+
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedMessage));
+        }
     }
 }

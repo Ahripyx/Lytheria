@@ -61,7 +61,10 @@ namespace Lytheria
             Commands.CommandErrored += CommandEventHandler;
 
             Commands.RegisterCommands<TestCommands>();
+            Commands.RegisterCommands<Basic>();
+
             slashCommandsConfiguration.RegisterCommands<BasicSL>();
+            slashCommandsConfiguration.RegisterCommands<CalculatorSL>();
 
             await Client.ConnectAsync();
             await Task.Delay(-1);

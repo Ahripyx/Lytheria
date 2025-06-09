@@ -149,6 +149,7 @@
     <Compile Include="Commands\Prefix\Level.cs" />
     <Compile Include="Commands\Prefix\TestCommands.cs" />
     <Compile Include="Commands\Slash\BasicSL.cs" />
+    <Compile Include="Commands\Slash\CalculatorSL.cs" />
     <Compile Include="Config\JSONReader.cs" />
     <Compile Include="Other\CardSystem.cs" />
     <Compile Include="Program.cs" />
