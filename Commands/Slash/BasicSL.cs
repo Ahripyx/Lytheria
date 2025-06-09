@@ -55,5 +55,16 @@ namespace Lytheria.Commands.Slash
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedMessage));
         }
+
+        [SlashCommand("modal", "Show a model")]
+        public async Task Modal(InteractionContext ctx)
+        {
+            var modal = new DiscordInteractionResponseBuilder()
+                .WithTitle("Test Modal")
+                .WithCustomId("modal")
+                .AddComponents(new TextInputComponent("Random", "randomTextBox", "Type something here"));
+
+            await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);
+        }
     }
 }

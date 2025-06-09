@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -47,6 +48,7 @@ namespace Lytheria
             Client.MessageCreated += MessageCreatedHandler;
             Client.VoiceStateUpdated += VoiceChannelHandler;
             Client.ComponentInteractionCreated += Client_ComponentInteractionCreated;
+            Client.ModalSubmitted += ModalSubmittedHandler;
 
             var commandsConfig = new CommandsNextConfiguration()
             {
@@ -73,8 +75,68 @@ namespace Lytheria
             await Task.Delay(-1);
         }
 
+        private static async Task ModalSubmittedHandler(DiscordClient sender, ModalSubmitEventArgs e)
+        {
+            if (e.Interaction.Type == InteractionType.ModalSubmit)
+            {
+                var values = e.Values;
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                    .WithContent($"{e.Interaction.User.Username} submitted a modal with the input {values.Values.First()}"));
+            }
+        }
+
         private static async Task Client_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs args)
         {
+            //Drop-Down events
+            if (args.Id == "dropDownList" && args.Interaction.Data.ComponentType == ComponentType.StringSelect)
+            {
+                var options = args.Values;
+
+                foreach (var option in options)
+                {
+                    switch (option)
+                    {
+                        case "option1":
+                            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                                .WithContent("You chose option 1!"));
+                            break;
+                        case "option2":
+                            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                                .WithContent("You chose option 2!"));
+                            break;
+                        case "option3":
+                            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                                .WithContent("You chose option 3!"));
+                            break;
+                    }
+                }
+            }
+            else if (args.Id == "channelDropDownList")
+            {
+                var options = args.Values;
+
+                foreach (var channel in options)
+                {
+                    var selectedChannel = await Client.GetChannelAsync(ulong.Parse(channel));
+
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder()
+                        .WithContent($"{args.User.Username} selected the channl with name {selectedChannel.Name}"));
+                }
+            }
+            else if (args.Id == "mentionDropDownList")
+            {
+                var options = args.Values;
+
+                foreach (var mention in options)
+                {
+                    var selectedMention = await Client.GetUserAsync(ulong.Parse(mention));
+
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                        .WithContent($"{args.User.Username} selected the user with name {selectedMention.Username}"));
+                }
+            }
+
+            //button events
             switch (args.Interaction.Data.CustomId)
             {
                 case "button1":

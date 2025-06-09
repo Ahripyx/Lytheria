@@ -64,5 +64,33 @@ namespace Lytheria.Commands.Prefix
 
             await ctx.Channel.SendMessageAsync(dropDownMessage);
         }
+
+        [Command("channel-list")]
+        public async Task ChannelList(CommandContext ctx)
+        {
+            var channelComponent = new DiscordChannelSelectComponent("channelDropDownList", "Select...");
+
+            var dropDownMessage = new DiscordMessageBuilder()
+                .AddEmbed(new DiscordEmbedBuilder()
+                    .WithColor(DiscordColor.Gold)
+                    .WithTitle("This embed has a channel drop-down list"))
+                .AddComponents(channelComponent);
+
+            await ctx.Channel.SendMessageAsync(dropDownMessage);
+        }
+
+        [Command("mention-list")]
+        public async Task MentionList(CommandContext ctx)
+        {
+            var mentionComponent = new DiscordMentionableSelectComponent("mentionDropDownList", "Select...");
+
+            var dropDownMessage = new DiscordMessageBuilder()
+                .AddEmbed(new DiscordEmbedBuilder()
+                    .WithColor(DiscordColor.Gold)
+                    .WithTitle("This embed has a channel drop-down list"))
+                .AddComponents(mentionComponent);
+
+            await ctx.Channel.SendMessageAsync(dropDownMessage);
+        }
     }
 }
