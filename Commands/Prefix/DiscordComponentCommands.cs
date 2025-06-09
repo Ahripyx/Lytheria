@@ -43,5 +43,26 @@ namespace Lytheria.Commands.Prefix
 
             await ctx.Channel.SendMessageAsync(message);
         }
+
+        [Command("dropdown-list")]
+        public async Task DropDownList(CommandContext ctx)
+        {
+            List<DiscordSelectComponentOption> optionList = new List<DiscordSelectComponentOption>();
+            optionList.Add(new DiscordSelectComponentOption("Option 1", "option1"));
+            optionList.Add(new DiscordSelectComponentOption("Option 2", "option2"));
+            optionList.Add(new DiscordSelectComponentOption("Option 3", "option3"));
+
+            var options = optionList.AsEnumerable();
+
+            var dropDown = new DiscordSelectComponent("dropDownList", "Select...", options);
+
+            var dropDownMessage = new DiscordMessageBuilder()
+                .AddEmbed(new DiscordEmbedBuilder()
+                    .WithColor(DiscordColor.Gold)
+                    .WithTitle("This embed has a drop down list"))
+                .AddComponents(dropDown);
+
+            await ctx.Channel.SendMessageAsync(dropDownMessage);
+        }
     }
 }
