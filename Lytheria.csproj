@@ -146,7 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Prefix\Basic.cs" />
-    <Compile Include="Commands\Prefix\Level.cs" />
+    <Compile Include="Commands\Prefix\DiscordComponentCommands.cs" />
     <Compile Include="Commands\Prefix\TestCommands.cs" />
     <Compile Include="Commands\Slash\BasicSL.cs" />
     <Compile Include="Commands\Slash\CalculatorSL.cs" />
@@ -160,6 +160,9 @@
     <None Include="Config\config.json" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Docs\" />
+    <Folder Include="Engine\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

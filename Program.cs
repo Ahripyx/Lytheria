@@ -10,6 +10,7 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using Lytheria.commands;
+using Lytheria.Commands.Prefix;
 using Lytheria.Commands.Slash;
 using Lytheria.config;
 
@@ -45,6 +46,7 @@ namespace Lytheria
             Client.Ready += Client_Ready;
             Client.MessageCreated += MessageCreatedHandler;
             Client.VoiceStateUpdated += VoiceChannelHandler;
+            Client.ComponentInteractionCreated += Client_ComponentInteractionCreated;
 
             var commandsConfig = new CommandsNextConfiguration()
             {
@@ -62,12 +64,52 @@ namespace Lytheria
 
             Commands.RegisterCommands<TestCommands>();
             Commands.RegisterCommands<Basic>();
+            Commands.RegisterCommands<DiscordComponentCommands>();
 
             slashCommandsConfiguration.RegisterCommands<BasicSL>();
             slashCommandsConfiguration.RegisterCommands<CalculatorSL>();
 
             await Client.ConnectAsync();
             await Task.Delay(-1);
+        }
+
+        private static async Task Client_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs args)
+        {
+            switch (args.Interaction.Data.CustomId)
+            {
+                case "button1":
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                        .WithContent("You clicked Button 1!"));
+                    break;
+                case "button2":
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                        .WithContent("You clicked Button 2!"));
+                    break;
+                case "basicsBtn":
+                    var basicCommandsEmbed = new DiscordEmbedBuilder
+                    {
+                        Color = DiscordColor.Black,
+                        Title = "Basic Commands",
+                        Description = "Here are some basic commands you can use:\n" +
+                                      "`!help` - Displays this help message.\n" +
+                                      "`!calculate <num1> <operation> <num2>` - Performs a calculation.\n" +
+                                      "`!button` - Displays buttons for interaction."
+                    };
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AddEmbed(basicCommandsEmbed));
+                    break;
+                case "calculatorBtn":
+                    var calculatorEmbed = new DiscordEmbedBuilder
+                    {
+                        Color = DiscordColor.Black,
+                        Title = "Calculator Commands",
+                        Description = "Here are some calculator commands you can use:\n" +
+                                      "`!calculate <num1> <operation> <num2>` - Performs a calculation.\n" +
+                                      "`!poll <opt1> <opt2> <opt3> <opt4> <pollTitle>` - Creates a poll."
+                    };
+
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AddEmbed(calculatorEmbed));
+                    break;
+            }
         }
 
         private static async Task CommandEventHandler(CommandsNextExtension sender, CommandErrorEventArgs e)
