@@ -82,19 +82,52 @@ namespace Lytheria.Commands.Slash
 
                 var musicTrack = searchQuery.Tracks.First();
 
-                await conn.PlayAsync(musicTrack);
+                var queue = _queues.GetOrAdd(ctx.Guild.Id, _ => new Queue<LavalinkTrack>());
 
-                string musicDesc = $"Now Playing: {musicTrack.Title} \n" +
+                if (conn.CurrentState.CurrentTrack != null)
+                {
+                    queue.Enqueue(musicTrack);
+                    var queueEmbed = new DiscordEmbedBuilder()
+                    {
+                        Title = "Song added to queue",
+                        Description = $"**{musicTrack.Title}** has been added to the queue.",
+                        Color = DiscordColor.Orange
+                    };
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(queueEmbed));
+                }
+                else
+                {
+                    await conn.PlayAsync(musicTrack);
+                    string musicDesc = $"Now Playing: {musicTrack.Title} \n" +
                                    $"Author: {musicTrack.Author} \n";
 
-                var nowPlayingEmbed = new DiscordEmbedBuilder()
-                {
-                    Title = $"Successfully joined channel {userVC.Name}",
-                    Description = musicDesc,
-                    Color = DiscordColor.Blue
-                };
+                    var nowPlayingEmbed = new DiscordEmbedBuilder()
+                    {
+                        Title = $"Successfully joined channel {userVC.Name}",
+                        Description = musicDesc,
+                        Color = DiscordColor.Blue
+                    };
 
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(nowPlayingEmbed));
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(nowPlayingEmbed));
+
+                    conn.PlaybackFinished += async (s, e) =>
+                    {
+                        if (queue.TryDequeue(out var nextTrack))
+                        {
+                            await conn.PlayAsync(nextTrack);
+                            var nowPlayingEmbed = new DiscordEmbedBuilder()
+                            {
+                                Title = $"Now playing {nextTrack.Title}...",
+                                Description = $"{nextTrack.Author}",
+                                Color = DiscordColor.Blue
+                            };
+                        }
+                    };
+                }
+                    
+
+
+                
             }
             catch (Exception ex)
             {
