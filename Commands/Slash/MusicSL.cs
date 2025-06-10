@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -47,8 +48,11 @@ namespace Lytheria.Commands.Slash
             {
                 await ctx.Channel.SendMessageAsync("Lavalink failed to connect.");
             }
-
-            var searchQuery = await node.Rest.GetTracksAsync(song);
+            else
+            {
+                Console.WriteLine(conn);
+            }
+                var searchQuery = await node.Rest.GetTracksAsync(song);
 
             if (searchQuery.LoadResultType == LavalinkLoadResultType.NoMatches || searchQuery.LoadResultType == LavalinkLoadResultType.LoadFailed)
             {
