@@ -15,67 +15,72 @@ namespace Lytheria.Commands.Slash
         [SlashCommand("play", "Play a song in your voice channel")]
         public async Task PlayMusic(InteractionContext ctx, [Option("song", "Song")] string song)
         {
-            await ctx.DeferAsync();
-
-            var userVC = ctx.Member.VoiceState.Channel;
-            var lavalinkInstance = ctx.Client.GetLavalink();
-
-            // PRE-Executions Checks
-            if (ctx.Member.VoiceState == null || userVC == null)
+            try
             {
-                await ctx.Channel.SendMessageAsync("Must be in a voice channel to connect.");
-                return;
-            }
+                await ctx.DeferAsync();
 
-            if (!lavalinkInstance.ConnectedNodes.Any())
-            {
-                await ctx.Channel.SendMessageAsync("Connection is not established.");
-                return;
-            }
+                var userVC = ctx.Member.VoiceState.Channel;
+                var lavalinkInstance = ctx.Client.GetLavalink();
 
-            if (userVC.Type != ChannelType.Voice)
-            {
-                await ctx.Channel.SendMessageAsync("Please enter a valid voice channel.");
-                return;
-            }
+                // PRE-Executions Checks
+                if (ctx.Member.VoiceState == null || userVC == null)
+                {
+                    await ctx.Channel.SendMessageAsync("Must be in a voice channel to connect.");
+                    return;
+                }
 
-            var node = lavalinkInstance.ConnectedNodes.Values.FirstOrDefault();
-            await node.ConnectAsync(userVC);
+                if (!lavalinkInstance.ConnectedNodes.Any())
+                {
+                    await ctx.Channel.SendMessageAsync("Connection is not established.");
+                    return;
+                }
 
-            var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
+                if (userVC.Type != ChannelType.Voice)
+                {
+                    await ctx.Channel.SendMessageAsync("Please enter a valid voice channel.");
+                    return;
+                }
 
-            if (conn == null)
-            {
-                await ctx.Channel.SendMessageAsync("Lavalink failed to connect.");
-            }
-            else
-            {
-                Console.WriteLine(conn);
-            }
+                var node = lavalinkInstance.ConnectedNodes.Values.FirstOrDefault();
+                await node.ConnectAsync(userVC);
+
+                var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
+
+                if (conn == null)
+                {
+                    await ctx.Channel.SendMessageAsync("Lavalink failed to connect.");
+                }
+
                 var searchQuery = await node.Rest.GetTracksAsync(song);
 
-            if (searchQuery.LoadResultType == LavalinkLoadResultType.NoMatches || searchQuery.LoadResultType == LavalinkLoadResultType.LoadFailed)
+                if (searchQuery.LoadResultType == LavalinkLoadResultType.NoMatches || searchQuery.LoadResultType == LavalinkLoadResultType.LoadFailed)
+                {
+                    await ctx.Channel.SendMessageAsync($"Failed to find music with query: {song}");
+                    return;
+                }
+
+                var musicTrack = searchQuery.Tracks.First();
+
+                await conn.PlayAsync(musicTrack);
+
+                string musicDesc = $"Now Playing: {musicTrack.Title} \n" +
+                                   $"Author: {musicTrack.Author} \n" +
+                                   $"URL: {musicTrack.Uri}";
+
+                var nowPlayingEmbed = new DiscordEmbedBuilder()
+                {
+                    Title = $"Successfully joined channel {userVC.Name}",
+                    Description = musicDesc,
+                    Color = DiscordColor.Blue
+                };
+
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(nowPlayingEmbed));
+            }
+            catch (Exception ex)
             {
-                await ctx.Channel.SendMessageAsync($"Failed to find music with query: {song}");
-                return;
+                Console.WriteLine(ex);
             }
 
-            var musicTrack = searchQuery.Tracks.First();
-
-            await conn.PlayAsync(musicTrack);
-
-            string musicDesc = $"Now Playing: {musicTrack.Title} \n" +
-                               $"Author: {musicTrack.Author} \n" +
-                               $"URL: {musicTrack.Uri}";
-
-            var nowPlayingEmbed = new DiscordEmbedBuilder()
-            {
-                Title = $"Successfully joined channel {userVC.Name}",
-                Description = musicDesc,
-                Color = DiscordColor.Blue
-            };
-
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(nowPlayingEmbed));
         }
 
         // Allows user to pause song already playing in the VC

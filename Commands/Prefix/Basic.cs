@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using Lytheria.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,30 @@ namespace Lytheria.commands
             }
 
             await ctx.Channel.SendMessageAsync($"Result: {result}");
+        }
+
+        [Command("store")]
+        public async Task StoreUser(CommandContext ctx)
+        {
+            var DBEngine = new DBEngine();
+
+            var userInfo = new DiscordUser
+            {
+                userName = ctx.User.Username,
+                serverName = ctx.Guild.Name,
+                serverID = ctx.Guild.Id
+            };
+
+            var isStored = await DBEngine.StoreUserAsync(userInfo);
+
+            if (isStored)
+            {
+                await ctx.Channel.SendMessageAsync("User information stored successfully.");
+            }
+            else
+            {
+                await ctx.Channel.SendMessageAsync("Failed to store user information.");
+            }
         }
     }
 }
