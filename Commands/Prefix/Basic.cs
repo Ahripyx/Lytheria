@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using Lytheria.Database;
 using System;
 using System.Collections.Generic;
@@ -48,7 +49,7 @@ namespace Lytheria.commands
         {
             var DBEngine = new DBEngine();
 
-            var userInfo = new DiscordUser
+            var userInfo = new Database.DiscordUser
             {
                 userName = ctx.User.Username,
                 serverName = ctx.Guild.Name,
@@ -64,6 +65,30 @@ namespace Lytheria.commands
             else
             {
                 await ctx.Channel.SendMessageAsync("Failed to store user information.");
+            }
+        }
+
+        [Command("profile")]
+        public async Task Profile(CommandContext ctx)
+        {
+            var DBEngine = new DBEngine();
+
+            var userToRetrieve = await DBEngine.GetUserAsync(ctx.User.Username);
+            if (userToRetrieve.Item1 == true)
+            {
+                var profileEmbed = new DiscordEmbedBuilder
+                {
+                    Title = $"{userToRetrieve.Item2.userName}'s Profile",
+                    Description = $"Server: {userToRetrieve.Item2.serverName}\n" +
+                                  $"Server ID: {userToRetrieve.Item2.serverID}",
+                    Color = DiscordColor.Blue
+                };
+
+                await ctx.Channel.SendMessageAsync(embed: profileEmbed);
+            }
+            else
+            {
+                await ctx.Channel.SendMessageAsync("User not found.");
             }
         }
     }
