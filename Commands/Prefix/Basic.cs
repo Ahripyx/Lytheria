@@ -52,8 +52,7 @@ namespace Lytheria.commands
             var userInfo = new Database.DiscordUser
             {
                 userName = ctx.User.Username,
-                serverName = ctx.Guild.Name,
-                serverID = ctx.Guild.Id
+                profileId = ctx.User.Id
             };
 
             var isStored = await DBEngine.StoreUserAsync(userInfo);
@@ -73,14 +72,13 @@ namespace Lytheria.commands
         {
             var DBEngine = new DBEngine();
 
-            var userToRetrieve = await DBEngine.GetUserAsync(ctx.User.Username);
+            var userToRetrieve = await DBEngine.GetUserAsync(ctx.User.Id);
             if (userToRetrieve.Item1 == true)
             {
                 var profileEmbed = new DiscordEmbedBuilder
                 {
                     Title = $"{userToRetrieve.Item2.userName}'s Profile",
-                    Description = $"Server: {userToRetrieve.Item2.serverName}\n" +
-                                  $"Server ID: {userToRetrieve.Item2.serverID}",
+                    Description = $"Discord ID: {userToRetrieve.Item2.profileId}\n",
                     Color = DiscordColor.Blue
                 };
 

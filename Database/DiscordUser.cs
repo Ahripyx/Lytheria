@@ -9,7 +9,6 @@ namespace Lytheria.Database
     public class DiscordUser
     {
         public string userName { get; set; }
-        public string serverName { get; set; }
-        public ulong serverID { get; set; }
+        public ulong profileId { get; set; }
     }
 }

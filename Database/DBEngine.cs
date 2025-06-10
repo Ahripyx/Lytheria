@@ -28,8 +28,8 @@ namespace Lytheria.Database
                 {
                     await conn.OpenAsync();
                     
-                    string query = "INSERT INTO userinfo (userno, username, servername, serverid) " +
-                                   $"VALUES ('{userNum}', '{user.userName}', '{user.serverName}', '{user.serverID}');";
+                    string query = "INSERT INTO userinfo (userId, username, profileId ) " +
+                                   $"VALUES ('{userNum}', '{user.userName}', '{user.profileId}');";
 
                     using (var cmd = new SqlCommand(query, conn))
                     {
@@ -46,7 +46,7 @@ namespace Lytheria.Database
             
         }
 
-        public async Task<(bool, DiscordUser)> GetUserAsync(string userName)
+        public async Task<(bool, DiscordUser)> GetUserAsync(ulong profileId)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace Lytheria.Database
                 {
                     await conn.OpenAsync();
                     string query = $"SELECT * FROM userinfo " +
-                                   $"WHERE username = '{userName}'";
+                                   $"WHERE profileId = '{profileId}'";
 
                     using (var cmd = new SqlCommand(query, conn))
                     {
@@ -66,8 +66,7 @@ namespace Lytheria.Database
                         result = new DiscordUser
                         {
                             userName = reader["username"].ToString(),
-                            serverName = reader["servername"].ToString(),
-                            serverID = Convert.ToUInt64(reader["serverid"])
+                            profileId = Convert.ToUInt64(reader["profileId"])
                         };
                     }
                 }
