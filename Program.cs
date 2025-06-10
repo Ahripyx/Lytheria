@@ -78,6 +78,7 @@ namespace Lytheria
             slashCommandsConfiguration.RegisterCommands<BasicSL>();
             slashCommandsConfiguration.RegisterCommands<CalculatorSL>();
             slashCommandsConfiguration.RegisterCommands<MusicSL>();
+            slashCommandsConfiguration.RegisterCommands<PlaylistSL>();
 
             // Lavalink Configuration (change configs as updates release)
             var endpoint = new ConnectionEndpoint
@@ -95,6 +96,33 @@ namespace Lytheria
             };
 
             var lavalink = Client.UseLavalink();
+
+            // Automatic reonnection if lavalink goes down (Temp code, improve this later)
+            lavalink.NodeDisconnected += async (s, e) =>
+            {
+                Console.WriteLine("Lavalink node disconnected. Attempting to reconnect...");
+                int retries = 0;
+                bool connected = false;
+                while (!connected && retries < 5)
+                {
+                    try
+                    {
+                        await Task.Delay(5000); // Wait 5 seconds before retry
+                        await lavalink.ConnectAsync(lavalinkConfig);
+                        connected = true;
+                        Console.WriteLine("Lavalink reconnected successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        retries++;
+                        Console.WriteLine($"Lavalink reconnect attempt {retries} failed: {ex.Message}");
+                    }
+                }
+                if (!connected)
+                {
+                    Console.WriteLine("Failed to reconnect to Lavalink after multiple attempts.");
+                }
+            };
 
             // Connects to get the bot online
             await Client.ConnectAsync();

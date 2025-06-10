@@ -124,12 +124,82 @@ namespace Lytheria.Commands.Slash
                         }
                     };
                 }
-                    
-
-
-                
+                  
             }
             catch (Exception ex)
+            {
+                await SendErrorAsync(ctx, "An unexpected error has occured.");
+                Console.WriteLine(ex);
+            }
+
+        }
+
+        [SlashCommand("skip", "Skip the current song that is playing")]
+        public async Task SkipMusic(InteractionContext ctx)
+        {
+            try
+            {
+                await ctx.DeferAsync();
+                var userVC = ctx.Member.VoiceState.Channel;
+                var lavalinkInstance = ctx.Client.GetLavalink();
+
+                // PRE-Executions Checks
+                if (ctx.Member.VoiceState == null || userVC == null)
+                {
+                    await SendErrorAsync(ctx, "Must be in a voice channel to connect.");
+                    return;
+                }
+                if (!lavalinkInstance.ConnectedNodes.Any())
+                {
+                    await SendErrorAsync(ctx, "Connection is not established.");
+                    return;
+                }
+                if (userVC.Type != ChannelType.Voice)
+                {
+                    await SendErrorAsync(ctx, "Please enter a valid voice channel");
+                    return;
+                }
+                var node = lavalinkInstance.ConnectedNodes.Values.First();
+                var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
+                if (conn == null)
+                {
+                    await SendErrorAsync(ctx, "Lavalink failed to connect.");
+                    return;
+                }
+                if (conn.CurrentState.CurrentTrack == null)
+                {
+                    await SendErrorAsync(ctx, "No tracks are playing at the moment.");
+                    return;
+                }
+
+                var queue = _queues.GetOrAdd(ctx.Guild.Id, _ => new Queue<LavalinkTrack>());
+
+                if (queue.TryDequeue(out var nextTrack))
+                {
+                    await conn.PlayAsync(nextTrack);
+
+                    var skipEmbed = new DiscordEmbedBuilder()
+                    {
+                        Color = DiscordColor.Green,
+                        Title = "Track Skipped",
+                        Description = $"Now playing: {nextTrack.Title} by {nextTrack.Author}"
+                    };
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(skipEmbed));
+                }
+                else
+                {
+                    await conn.StopAsync();
+
+                    var stopEmbed = new DiscordEmbedBuilder()
+                    {
+                        Color = DiscordColor.Orange,
+                        Title = "Track Skipped",
+                        Description = "No more songs in the queue. Playback stopped."
+                    };
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(stopEmbed));
+                }
+            }
+            catch(Exception ex)
             {
                 await SendErrorAsync(ctx, "An unexpected error has occured.");
                 Console.WriteLine(ex);

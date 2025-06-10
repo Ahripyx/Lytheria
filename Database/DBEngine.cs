@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -12,6 +13,46 @@ namespace Lytheria.Database
     {
         //Connects to the PostgreSQL database using Npgsql
         private string connectionString = "Server=localhost\\SQLEXPRESS;Database=Lytheria;Trusted_Connection=True;TrustServerCertificate=True;";
+
+        public async Task<bool> CreatePlaylistAsync(ulong profileId, string playlistName)
+        {
+            try
+            {
+                long userId;
+                using (var conn = new SqlConnection(connectionString))
+                {
+
+                    await conn.OpenAsync();
+
+                    string getUserQuery = $"SELECT userId FROM userinfo WHERE profileId = '{profileId}'";
+                    
+                    using (var getUserCmd = new SqlCommand(getUserQuery, conn))
+                    {
+                        var userIdResult = await getUserCmd.ExecuteScalarAsync();
+                        
+                        if (userIdResult == null)
+                        {
+                            throw new Exception("User not found.");
+                        }
+                        userId = Convert.ToInt64(userIdResult);
+                    }
+
+                    string insertQuery = "INSERT INTO playlist (playlistName, userId) " +
+                                   $"VALUES ('{playlistName}', '{userId}');";
+
+                    using (var cmd = new SqlCommand(insertQuery, conn))
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating playlist: {ex.Message}");
+                return false;
+            }
+        }
 
         public async Task<bool> StoreUserAsync(DiscordUser user)
         {
