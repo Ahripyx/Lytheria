@@ -80,6 +80,7 @@ namespace Lytheria
             slashCommandsConfiguration.RegisterCommands<HelpSL>();
             slashCommandsConfiguration.RegisterCommands<MusicSL>();
             slashCommandsConfiguration.RegisterCommands<PlaylistSL>();
+            slashCommandsConfiguration.RegisterCommands<UserInfoSL>();
 
             // Lavalink Configuration (change configs as updates release)
             var endpoint = new ConnectionEndpoint

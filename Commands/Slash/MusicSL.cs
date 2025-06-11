@@ -372,13 +372,11 @@ namespace Lytheria.Commands.Slash
                     return;
                 }
 
-                if (conn.CurrentState.CurrentTrack == null)
+                if (conn.CurrentState.CurrentTrack != null)
                 {
-                    await SendErrorAsync(ctx, "No tracks are playing at the moment.");
-                    return;
+                    await conn.StopAsync();
                 }
 
-                await conn.StopAsync();
                 await conn.DisconnectAsync();
 
                 var stopEmbed = new DiscordEmbedBuilder()

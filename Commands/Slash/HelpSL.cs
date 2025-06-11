@@ -24,7 +24,7 @@ namespace Lytheria.Commands.Slash
             };
             embed.AddField("Music Commands", "/play - Play a song\n/stop - Stop the current song\n/pause - Pause the current song\n/resume - Resume the current song\n/skip - Skip the current song\n/queue - Show the current queue (WIP)");
             embed.AddField("Playlist Commands", "/playlist create - Create a new playlist\n/playlist delete - Delete a playlist\n/playlist list - List your playlists (WIP)");
-            embed.AddField("User Commands", "/register - Register yourself in the system (WIP, use !store for now)");
+            embed.AddField("User Commands", "/register - Register yourself in the system\n/profile - View profile information for Lytheria");
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
         }
     }
