@@ -19,13 +19,37 @@ namespace Lytheria.Commands.Slash
 
             var DBEngine = new DBEngine();
 
-            var playlistInfo = new Database.Playlist
+            // Checking to see if user is reigstered
+            var (userExists, _) = await DBEngine.GetUserAsync(ctx.User.Id);
+
+            if (!userExists)
             {
-                Name = playlistName
-            };
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Error",
+                    Description = "Failed to create playlist. Make sure you are registered by doing !store.",
+                    Color = DiscordColor.Red
+                };
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                return;
+            }
 
+            // Checking already owned playlist count
+            var playlistCount = await DBEngine.PlaylistCountAsync(ctx.User.Id);
+            if (playlistCount >= 10)
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Error",
+                    Description = "The max number amount of playlist is 10, please use /playlist remove to make space.",
+                    Color = DiscordColor.Red
+                };
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                return;
+            }
+
+            // Attempting to create the playlist
             var createPlaylist = await DBEngine.CreatePlaylistAsync(ctx.User.Id, playlistName);
-
             if (createPlaylist)
             {
                 var embed = new DiscordEmbedBuilder
@@ -35,17 +59,23 @@ namespace Lytheria.Commands.Slash
                     Color = DiscordColor.Green
                 };
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                return;
             }
             else
             {
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = "Error",
-                    Description = "Failed to create playlist. Make sure you are registered by doing !store.",
+                    Description = "Failed to create playlist.",
                     Color = DiscordColor.Red
                 };
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
             }
+
+            var playlistInfo = new Database.Playlist
+            {
+                Name = playlistName
+            };
         }
     }
 }

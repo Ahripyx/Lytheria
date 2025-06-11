@@ -97,7 +97,7 @@ namespace Lytheria
 
             var lavalink = Client.UseLavalink();
 
-            // Automatic reonnection if lavalink goes down (Temp code, improve this later)
+            //Automatic reonnection if lavalink goes down
             lavalink.NodeDisconnected += async (s, e) =>
             {
                 Console.WriteLine("Lavalink node disconnected. Attempting to reconnect...");

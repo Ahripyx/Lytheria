@@ -14,6 +14,43 @@ namespace Lytheria.Database
         //Connects to the PostgreSQL database using Npgsql
         private string connectionString = "Server=localhost\\SQLEXPRESS;Database=Lytheria;Trusted_Connection=True;TrustServerCertificate=True;";
 
+        public async Task<int> PlaylistCountAsync(ulong profileId)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+                    
+                    string getUserQuery = $"SELECT userId FROM userinfo WHERE profileId = '{profileId}'";
+                    long userId;
+                    using (var getUserCmd = new SqlCommand(getUserQuery, conn))
+                    {
+                        var userIdResult = await getUserCmd.ExecuteScalarAsync();
+                        if (userIdResult == null)
+                        {
+                            throw new Exception("User not found.");
+                        }
+                        userId = Convert.ToInt64(userIdResult);
+                    }
+                    string countQuery = $"SELECT COUNT(*) FROM playlist WHERE userId = '{userId}'";
+                    using (var countPlaylistCmd = new SqlCommand(countQuery, conn))
+                    {
+                        var countResult = await countPlaylistCmd.ExecuteScalarAsync();
+                        return Convert.ToInt32(countResult);
+                    }
+                }
+
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error counting playlists: {ex.Message}");
+                return -1;
+            }
+        }
+
+        // SQL Command for creating a playlist
         public async Task<bool> CreatePlaylistAsync(ulong profileId, string playlistName)
         {
             try
