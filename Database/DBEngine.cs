@@ -11,9 +11,10 @@ namespace Lytheria.Database
 {
     public class DBEngine
     {
-        //Connects to the PostgreSQL database using Npgsql
+        // Connects to the PostgreSQL database using Npgsql
         private string connectionString = "Server=localhost\\SQLEXPRESS;Database=Lytheria;Trusted_Connection=True;TrustServerCertificate=True;";
 
+        // Checks for playlist count for user
         public async Task<int> PlaylistCountAsync(ulong profileId)
         {
             try
@@ -91,6 +92,44 @@ namespace Lytheria.Database
             }
         }
 
+        // SQL Command for removing a playlist
+        public async Task<bool> RemovePlaylistAsync(ulong profileId, string playlistName)
+        {
+            try
+            {
+                long userId;
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+                    string getUserQuery = $"SELECT userId FROM userinfo WHERE profileId = '{profileId}'";
+                    
+                    using (var getUserCmd = new SqlCommand(getUserQuery, conn))
+                    {
+                        var userIdResult = await getUserCmd.ExecuteScalarAsync();
+                        
+                        if (userIdResult == null)
+                        {
+                            throw new Exception("User not found.");
+                        }
+                        userId = Convert.ToInt64(userIdResult);
+                    }
+                    string deleteQuery = "DELETE FROM playlist " +
+                                         $"WHERE playlistName = '{playlistName}' AND userId = '{userId}';";
+                    using (var cmd = new SqlCommand(deleteQuery, conn))
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error removing playlist: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Stores user infomration
         public async Task<bool> StoreUserAsync(DiscordUser user)
         {
             try
@@ -124,6 +163,7 @@ namespace Lytheria.Database
             
         }
 
+        // Retrieves user information
         public async Task<(bool, DiscordUser)> GetUserAsync(ulong profileId)
         {
             try
@@ -157,6 +197,7 @@ namespace Lytheria.Database
             }
         }
 
+        // Retrieves the total number of users
         private async Task<long> GetTotalUsersAsync()
         {
             try
