@@ -77,6 +77,7 @@ namespace Lytheria
             // Registering slash commands
             slashCommandsConfiguration.RegisterCommands<BasicSL>();
             slashCommandsConfiguration.RegisterCommands<CalculatorSL>();
+            slashCommandsConfiguration.RegisterCommands<HelpSL>();
             slashCommandsConfiguration.RegisterCommands<MusicSL>();
             slashCommandsConfiguration.RegisterCommands<PlaylistSL>();
 
@@ -265,9 +266,14 @@ namespace Lytheria
             return;
         }
 
-        private static Task Client_Ready(DiscordClient sender, ReadyEventArgs args)
+        private static async Task Client_Ready(DiscordClient sender, ReadyEventArgs args)
         {
-            return Task.CompletedTask;
+
+            await sender.UpdateStatusAsync(
+                new DiscordActivity("Music | /help", ActivityType.Playing),
+                UserStatus.Online
+                );
+            return;
         }
     }
 }
