@@ -117,10 +117,10 @@ namespace Lytheria.Database
                                          $"WHERE playlistName = '{playlistName}' AND userId = '{userId}';";
                     using (var cmd = new SqlCommand(deleteQuery, conn))
                     {
-                        await cmd.ExecuteNonQueryAsync();
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                        return rowsAffected > 0;
                     }
                 }
-                return true;
             }
             catch (Exception ex)
             {
