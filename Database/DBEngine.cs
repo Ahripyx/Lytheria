@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.Identity.Client;
 using Npgsql;
 
 namespace Lytheria.Database
@@ -125,6 +126,111 @@ namespace Lytheria.Database
             catch (Exception ex)
             {
                 Console.WriteLine($"Error removing playlist: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Retrieves the playlist ID for a given profile ID and playlist name
+        public async Task<long?> GetPlaylistIdAsync(ulong profileId, string playlistName)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+                    
+                    string getUserQuery = $"SELECT userId FROM userinfo WHERE profileId = '{profileId}'";
+                    long userId;
+                    
+                    using (var getUserCmd = new SqlCommand(getUserQuery, conn))
+                    {
+                        var userIdResult = await getUserCmd.ExecuteScalarAsync();
+                        
+                        if (userIdResult == null)
+                        {
+                            throw new Exception("User not found.");
+                        }
+                        userId = Convert.ToInt64(userIdResult);
+                    }
+                    string query = $"SELECT playlistId FROM playlist WHERE playlistName = '{playlistName}' AND userId = '{userId}';";
+                    
+                    using (var getPlaylistCmd = new SqlCommand(query, conn))
+                    {
+                        var playlistIdresult = await getPlaylistCmd.ExecuteScalarAsync();
+                        
+                        if (playlistIdresult == null)
+                        {
+                            return null; // Playlist not found
+                        }
+                        return Convert.ToInt64(playlistIdresult);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching playlist ID: {ex.Message}");
+                return null;
+            }
+        }
+
+        // Adds a song to the database or retrieves its ID if it already exists
+        public async Task<long> AddOrGetSongAsync(string title, string artist, string duration,  ulong profileId)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    // Checking to see if song exists already
+                    string checkSongQuery = $"SELECT songId FROM song WHERE title = '{title}' AND artist = '{artist}' AND duration = '{duration}'"; 
+                    using (var checkCmd = new SqlCommand(checkSongQuery, conn))
+                    {
+                        var songIdResult = await checkCmd.ExecuteScalarAsync();
+                        if (songIdResult != null)
+                        {
+                            return Convert.ToInt64(songIdResult);
+                        }
+                    }
+
+                    // Inserting song if not in database
+                    string insertSongQuery = "INSERT INTO song (title, artist, duration) " +
+                                             $"VALUES ('{title}', '{artist}', '{duration}');" +
+                                             "SELECT SCOPE_IDENTITY();";
+                    using (var insertCmd = new SqlCommand(insertSongQuery, conn))
+                    {
+                        var insertId = await insertCmd.ExecuteScalarAsync();
+                        return Convert.ToInt64(insertId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding or getting song: {ex.Message}");
+                return -1;
+            }
+        }
+
+        public async Task<bool> AddSongToPlaylistAsync(long playlistId, long songId)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+                    string insertQuery = "INSERT INTO playlist_songs (playlistId, songId) " +
+                                   $"VALUES ('{playlistId}', '{songId}');";
+
+                    using (var cmd = new SqlCommand(insertQuery, conn))
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                        return true; 
+                    }
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Error adding song to playlist.");
                 return false;
             }
         }
