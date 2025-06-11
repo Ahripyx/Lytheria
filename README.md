@@ -1,5 +1,5 @@
 # Lytheria Discord Music Bot
-<hr>
+
 <p>
   This discord bot was made for personal use for me and a couple of friends. Taken as a side project to make throughout the summer. Written in C# using plugins of DSharp + Lavalink (for hosting the music side of it.
 </p>
