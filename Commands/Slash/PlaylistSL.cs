@@ -219,5 +219,53 @@ namespace Lytheria.Commands.Slash
             }
 
         }
+
+        [SlashCommand("list", "List all your playlists")]
+        public async Task ListPlaylists(InteractionContext ctx)
+        {
+            await ctx.DeferAsync();
+            var DBEngine = new DBEngine();
+            
+            var (userExists, _) = await DBEngine.GetUserAsync(ctx.User.Id);
+            if (!userExists)
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Error",
+                    Description = "Make sure you are registered by doing /register",
+                    Color = DiscordColor.Red
+                };
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                return;
+            }
+            var playlists = await DBEngine.GetUserPlaylistsAsync(ctx.User.Id);
+            if (playlists.Count == 0)
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "No Playlists",
+                    Description = "You have no playlists created.",
+                    Color = DiscordColor.Yellow
+                };
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                return;
+            }
+
+            var sb = new StringBuilder();
+            int i = 1;
+            foreach (var playlist in playlists)
+            {
+                sb.AppendLine($"**{i}.** {playlist}");
+                i++;
+            }
+
+            var embedList = new DiscordEmbedBuilder
+            {
+                Title = "Your Playlists",
+                Description = sb.ToString(),
+                Color = DiscordColor.Blurple
+            };
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedList));
+        }
     }
 }

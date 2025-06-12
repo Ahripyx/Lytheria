@@ -211,6 +211,51 @@ namespace Lytheria.Database
             }
         }
 
+        // Retrieves list of users playlists
+        public async Task<List<string>> GetUserPlaylistsAsync(ulong profileId)
+        {
+            try
+            {
+                List<string> playlists = new List<string>();
+                
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+                    
+                    string getUserQuery = $"SELECT userId FROM userinfo WHERE profileId = '{profileId}'";
+                    long userId;
+                    
+                    using (var getUserCmd = new SqlCommand(getUserQuery, conn))
+                    {
+                        var userIdResult = await getUserCmd.ExecuteScalarAsync();
+                        
+                        if (userIdResult == null)
+                        {
+                            throw new Exception("User not found.");
+                        }
+                        userId = Convert.ToInt64(userIdResult);
+                    }
+                    
+                    string query = $"SELECT playlistName FROM playlist WHERE userId = '{userId}';";
+                    
+                    using (var cmd = new SqlCommand(query, conn))
+                    {
+                        var reader = await cmd.ExecuteReaderAsync();
+                        while (await reader.ReadAsync())
+                        {
+                            playlists.Add(reader["playlistName"].ToString());
+                        }
+                    }
+                }
+                return playlists;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching user playlists: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task<bool> AddSongToPlaylistAsync(long playlistId, long songId)
         {
             try
