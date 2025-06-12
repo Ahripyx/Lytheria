@@ -225,7 +225,7 @@ namespace Lytheria.Commands
         {
             await ctx.DeferAsync();
             var DBEngine = new DBEngine();
-            
+
             var (userExists, _) = await DBEngine.GetUserAsync(ctx.User.Id);
             if (!userExists)
             {
@@ -323,7 +323,9 @@ namespace Lytheria.Commands
                 Description = sb.ToString(),
                 Color = DiscordColor.Blurple
             };
-            
+
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedView));
         }
+
+    }
 }
