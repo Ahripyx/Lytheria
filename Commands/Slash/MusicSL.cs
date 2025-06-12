@@ -39,15 +39,16 @@ namespace Lytheria.Commands.Slash
             {
                 await ctx.DeferAsync();
 
-                var userVC = ctx.Member.VoiceState.Channel;
                 var lavalinkInstance = ctx.Client.GetLavalink();
 
                 // PRE-Executions Checks
-                if (ctx.Member.VoiceState == null || userVC == null)
+                if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
                 {
                     await SendErrorAsync(ctx, "Must be in a voice channel to connect.");
                     return;
                 }
+
+                var userVC = ctx.Member.VoiceState.Channel;
 
                 if (!lavalinkInstance.ConnectedNodes.Any())
                 {
@@ -140,15 +141,18 @@ namespace Lytheria.Commands.Slash
             try
             {
                 await ctx.DeferAsync();
-                var userVC = ctx.Member.VoiceState.Channel;
+
                 var lavalinkInstance = ctx.Client.GetLavalink();
 
                 // PRE-Executions Checks
-                if (ctx.Member.VoiceState == null || userVC == null)
+                if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
                 {
                     await SendErrorAsync(ctx, "Must be in a voice channel to connect.");
                     return;
                 }
+
+                var userVC = ctx.Member.VoiceState.Channel;
+
                 if (!lavalinkInstance.ConnectedNodes.Any())
                 {
                     await SendErrorAsync(ctx, "Connection is not established.");
@@ -215,15 +219,16 @@ namespace Lytheria.Commands.Slash
             {
                 await ctx.DeferAsync();
 
-                var userVC = ctx.Member.VoiceState.Channel;
                 var lavalinkInstance = ctx.Client.GetLavalink();
 
                 // PRE-Executions Checks
-                if (ctx.Member.VoiceState == null || userVC == null)
+                if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
                 {
                     await SendErrorAsync(ctx, "Must be in a voice channel to connect.");
                     return;
                 }
+
+                var userVC = ctx.Member.VoiceState.Channel;
 
                 if (!lavalinkInstance.ConnectedNodes.Any())
                 {
@@ -278,15 +283,15 @@ namespace Lytheria.Commands.Slash
             {
                 await ctx.DeferAsync();
 
-                var userVC = ctx.Member.VoiceState.Channel;
                 var lavalinkInstance = ctx.Client.GetLavalink();
 
                 // PRE-Executions Checks
-                if (ctx.Member.VoiceState == null || userVC == null)
+                if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
                 {
                     await SendErrorAsync(ctx, "Must be in a voice channel to connect.");
                     return;
                 }
+                var userVC = ctx.Member.VoiceState.Channel;
 
                 if (!lavalinkInstance.ConnectedNodes.Any())
                 {
@@ -341,15 +346,16 @@ namespace Lytheria.Commands.Slash
             {
                 await ctx.DeferAsync();
 
-                var userVC = ctx.Member.VoiceState.Channel;
                 var lavalinkInstance = ctx.Client.GetLavalink();
 
                 // PRE-Executions Checks
-                if (ctx.Member.VoiceState == null || userVC == null)
+                if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
                 {
                     await SendErrorAsync(ctx, "Must be in a voice channel to connect.");
                     return;
                 }
+
+                var userVC = ctx.Member.VoiceState.Channel;
 
                 if (!lavalinkInstance.ConnectedNodes.Any())
                 {
