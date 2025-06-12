@@ -12,9 +12,7 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
 using DSharpPlus.SlashCommands;
-using Lytheria.commands;
 using Lytheria.Commands;
-using Lytheria.Commands.Prefix;
 using Lytheria.config;
 
 // Code by SamJesus8
