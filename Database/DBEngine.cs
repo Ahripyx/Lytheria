@@ -280,6 +280,39 @@ namespace Lytheria.Database
             }
         }
 
+        public async Task<List<string>> GetPlaylistSongsAsync(long playlistId)
+        {
+            try
+            {
+                List<string> songs = new List<string>();
+                
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+                    
+                    string query = $"SELECT song.title, song.artist FROM playlist_songs " +
+                                   $"JOIN song ON playlist_songs.songId = song.songId " +
+                                   $"WHERE playlist_songs.playlistId = '{playlistId}';";
+                    using (var cmd = new SqlCommand(query, conn))
+                    {
+                        var reader = await cmd.ExecuteReaderAsync();
+                        while (await reader.ReadAsync())
+                        {
+                            songs.Add(reader["title"].ToString());
+                            songs.Add(" by ");
+                            songs.Add(reader["artist"].ToString());
+                        }
+                    }
+                }
+                return songs;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching playlist songs: {ex.Message}");
+                return null;
+            }
+        }
+
         // Stores user infomration
         public async Task<bool> StoreUserAsync(DiscordUser user)
         {

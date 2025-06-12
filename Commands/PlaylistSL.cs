@@ -267,5 +267,63 @@ namespace Lytheria.Commands
             };
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedList));
         }
-    }
+
+        [SlashCommand("view", "View a specific playlist")]
+        public async Task ViewPlaylist(InteractionContext ctx, [Option("name", "Name of the playlist")] string playlistName)
+        {
+            await ctx.DeferAsync();
+            var DBEngine = new DBEngine();
+            // Checking to see if user is reigstered
+            var (userExists, _) = await DBEngine.GetUserAsync(ctx.User.Id);
+            if (!userExists)
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Error",
+                    Description = "Make sure you are registered by doing /register",
+                    Color = DiscordColor.Red
+                };
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                return;
+            }
+            var playlistId = await DBEngine.GetPlaylistIdAsync(ctx.User.Id, playlistName);
+            if (playlistId == null)
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Error",
+                    Description = "Playlist not found.",
+                    Color = DiscordColor.Red
+                };
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                return;
+            }
+            var songs = await DBEngine.GetPlaylistSongsAsync(playlistId.Value);
+            if (songs.Count == 0)
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "No Songs",
+                    Description = $"The playlist **{playlistName}** has no songs.",
+                    Color = DiscordColor.Yellow
+                };
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                return;
+            }
+            var sb = new StringBuilder();
+            int i = 1;
+            foreach (var song in songs)
+            {
+                sb.AppendLine($"**{i}.** {song}");
+                i++;
+            }
+            var embedView = new DiscordEmbedBuilder
+            {
+                Title = $"Playlist: {playlistName}",
+                Description = sb.ToString(),
+                Color = DiscordColor.Blurple
+            };
+            
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedView));
+        }
 }
