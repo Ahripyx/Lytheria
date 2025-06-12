@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
-namespace Lytheria.Commands.Slash
+namespace Lytheria.Commands
 {
     public class UserInfoSL : ApplicationCommandModule
     {

@@ -12,7 +12,7 @@ using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
 using Microsoft.Identity.Client;
 
-namespace Lytheria.Commands.Slash
+namespace Lytheria.Commands
 {
     // Handles all music related slash commands
     public class MusicSL : ApplicationCommandModule

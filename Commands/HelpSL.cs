@@ -7,7 +7,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
-namespace Lytheria.Commands.Slash
+namespace Lytheria.Commands
 {
     
     public class HelpSL : ApplicationCommandModule

@@ -8,7 +8,7 @@ using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
 using Lytheria.Database;
 
-namespace Lytheria.Commands.Slash
+namespace Lytheria.Commands
 {
     [SlashCommandGroup("playlist", "Manage your playlists.")]
     public class PlaylistSL : ApplicationCommandModule
@@ -74,7 +74,7 @@ namespace Lytheria.Commands.Slash
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
             }
 
-            var playlistInfo = new Database.Playlist
+            var playlistInfo = new Playlist
             {
                 Name = playlistName
             };
@@ -174,7 +174,7 @@ namespace Lytheria.Commands.Slash
 
             var track = searchResult.Tracks.FirstOrDefault();
 
-            var songInfo = new Database.Song
+            var songInfo = new Song
             {
                 title = track.Title,
                 artist = track.Author,

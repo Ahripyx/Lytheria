@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lytheria.Commands.Slash
+namespace Lytheria.Commands
 {
     public class Miscellaneous
     {

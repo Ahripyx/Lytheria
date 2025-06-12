@@ -13,8 +13,8 @@ using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
 using DSharpPlus.SlashCommands;
 using Lytheria.commands;
+using Lytheria.Commands;
 using Lytheria.Commands.Prefix;
-using Lytheria.Commands.Slash;
 using Lytheria.config;
 
 // Code by SamJesus8
@@ -69,14 +69,7 @@ namespace Lytheria
 
             Commands.CommandErrored += CommandEventHandler;
 
-            // Registering prefix commands
-            Commands.RegisterCommands<TestCommands>();
-            Commands.RegisterCommands<Basic>();
-            Commands.RegisterCommands<DiscordComponentCommands>();
-
             // Registering slash commands
-            slashCommandsConfiguration.RegisterCommands<BasicSL>();
-            slashCommandsConfiguration.RegisterCommands<CalculatorSL>();
             slashCommandsConfiguration.RegisterCommands<HelpSL>();
             slashCommandsConfiguration.RegisterCommands<MusicSL>();
             slashCommandsConfiguration.RegisterCommands<PlaylistSL>();
