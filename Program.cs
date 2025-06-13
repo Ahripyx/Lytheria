@@ -49,9 +49,7 @@ namespace Lytheria
 
             Client.Ready += Client_Ready;
             Client.MessageCreated += MessageCreatedHandler;
-            Client.VoiceStateUpdated += VoiceChannelHandler;
             Client.ComponentInteractionCreated += Client_ComponentInteractionCreated;
-            Client.ModalSubmitted += ModalSubmittedHandler;
 
             var commandsConfig = new CommandsNextConfiguration()
             {
@@ -121,16 +119,6 @@ namespace Lytheria
             await Client.ConnectAsync();
             await lavalink.ConnectAsync(lavalinkConfig);
             await Task.Delay(-1);
-        }
-
-        private static async Task ModalSubmittedHandler(DiscordClient sender, ModalSubmitEventArgs e)
-        {
-            if (e.Interaction.Type == InteractionType.ModalSubmit)
-            {
-                var values = e.Values;
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
-                    .WithContent($"{e.Interaction.User.Username} submitted a modal with the input {values.Values.First()}"));
-            }
         }
 
         private static async Task Client_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs args)
@@ -242,14 +230,6 @@ namespace Lytheria
                 };
 
                 await e.Context.Channel.SendMessageAsync(embed: coolDownMessage);
-            }
-        }
-
-        private static async Task VoiceChannelHandler(DiscordClient sender, VoiceStateUpdateEventArgs e)
-        {
-            if (e.Before == null  && e.Channel.Name == "General")
-            {
-                await e.Channel.SendMessageAsync($"{e.User.Username} has joined the voice channel.");
             }
         }
 

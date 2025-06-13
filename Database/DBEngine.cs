@@ -290,7 +290,7 @@ namespace Lytheria.Database
                 {
                     await conn.OpenAsync();
                     
-                    string query = $"SELECT song.title, song.artist FROM playlist_songs " +
+                    string query = $"SELECT song.title FROM playlist_songs " +
                                    $"JOIN song ON playlist_songs.songId = song.songId " +
                                    $"WHERE playlist_songs.playlistId = '{playlistId}';";
                     using (var cmd = new SqlCommand(query, conn))
@@ -299,8 +299,6 @@ namespace Lytheria.Database
                         while (await reader.ReadAsync())
                         {
                             songs.Add(reader["title"].ToString());
-                            songs.Add(" by ");
-                            songs.Add(reader["artist"].ToString());
                         }
                     }
                 }
