@@ -31,6 +31,29 @@ namespace Lytheria.Commands
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(errorEmbed));
         }
 
+        private string GetProgressBar(TimeSpan position, TimeSpan duration, int barLength = 20)
+        {
+            double progress = duration.TotalSeconds == 0 ? 0 : position.TotalSeconds / duration.TotalSeconds;
+            int progressBlocks = (int)(progress * barLength);
+            string progressBar = new string('▬', progressBlocks) + "🔘" + new string('▬', barLength - progressBlocks);
+            return progressBar;
+        }
+        private async Task<string> MusicUpdateAsync(InteractionContext ctx, LavalinkTrack track, TimeSpan ? position = null)
+        {
+
+            var queue = _queues.GetOrAdd(ctx.Guild.Id, _ => new Queue<LavalinkTrack>());
+            var currentPosition = position ?? TimeSpan.Zero;
+            var bar = GetProgressBar(currentPosition, track.Length);
+
+            string musicDesc = $"**Now Playing:** {track.Title} \n" +
+                                      $"**Author:** {track.Author} \n" +
+                                      $"**Duration:** {currentPosition:mm\\:ss} {bar} {track.Length:mm\\:ss}\n" +
+                                      $"**Requested by:** {ctx.User.Username}\n" +
+                                      $"**Queue Length:** {queue.Count} tracks";
+
+            return musicDesc;
+        }
+
         // Play song command
         [SlashCommand("play", "Play a song in your voice channel")]
         public async Task PlayMusic(InteractionContext ctx, [Option("song", "Song")] string song)
@@ -99,13 +122,13 @@ namespace Lytheria.Commands
                 else
                 {
                     await conn.PlayAsync(musicTrack);
-                    string musicDesc = $"Now Playing: {musicTrack.Title} \n" +
-                                   $"Author: {musicTrack.Author} \n";
+                    
+                    var nowPlayingDescription = await MusicUpdateAsync(ctx, musicTrack, TimeSpan.Zero);
 
                     var nowPlayingEmbed = new DiscordEmbedBuilder()
                     {
-                        Title = $"Successfully joined channel {userVC.Name}",
-                        Description = musicDesc,
+                        Title = $"Now Playing:",
+                        Description = nowPlayingDescription,
                         Color = DiscordColor.Blue
                     };
 
@@ -116,10 +139,12 @@ namespace Lytheria.Commands
                         if (queue.TryDequeue(out var nextTrack))
                         {
                             await conn.PlayAsync(nextTrack);
+
+                            var nextTrackDescription = await MusicUpdateAsync(ctx, nextTrack, TimeSpan.Zero);
                             var nowPlayingEmbed = new DiscordEmbedBuilder()
                             {
-                                Title = $"Now playing {nextTrack.Title}...",
-                                Description = $"{nextTrack.Author}",
+                                Title = $"Now playing ...",
+                                Description = nextTrackDescription,
                                 Color = DiscordColor.Blue
                             };
                         }
@@ -182,11 +207,13 @@ namespace Lytheria.Commands
                 {
                     await conn.PlayAsync(nextTrack);
 
+                    var nowPlayingDescription = await MusicUpdateAsync(ctx, nextTrack, TimeSpan.Zero);
+
                     var skipEmbed = new DiscordEmbedBuilder()
                     {
                         Color = DiscordColor.Green,
                         Title = "Track Skipped",
-                        Description = $"Now playing: {nextTrack.Title} by {nextTrack.Author}"
+                        Description = nowPlayingDescription
                     };
                     await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(skipEmbed));
                 }
