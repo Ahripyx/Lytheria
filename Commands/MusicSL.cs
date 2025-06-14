@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using DSharpPlus;
@@ -18,6 +19,8 @@ namespace Lytheria.Commands
     public class MusicSL : ApplicationCommandModule
     {
         private static readonly ConcurrentDictionary<ulong, Queue<LavalinkTrack>> _queues = new();
+
+        private static readonly ConcurrentDictionary<ulong, CancellationTokenSource> _embedUpdaters = new();
 
         // Error handling function
         private async Task SendErrorAsync(InteractionContext ctx, string errorMessage)
@@ -45,13 +48,47 @@ namespace Lytheria.Commands
             var currentPosition = position ?? TimeSpan.Zero;
             var bar = GetProgressBar(currentPosition, track.Length);
 
-            string musicDesc = $"**Now Playing:** {track.Title} \n" +
-                                      $"**Author:** {track.Author} \n" +
-                                      $"**Duration:** {currentPosition:mm\\:ss} {bar} {track.Length:mm\\:ss}\n" +
-                                      $"**Requested by:** {ctx.User.Username}\n" +
+            string displayTitle = track.Title.Length > 50 ? track.Title.Substring(0,50) + ". . ." : track.Title;
+
+            string musicDesc = $"**Title:** {displayTitle} \n\n" +
+                                      "```" +
+                                      $"**Author:** {track.Author,-20} **Requested by:** {ctx.User.Username}\n" +
+                                      "```\n" +
+                                      $"{currentPosition:mm\\:ss} {bar} {track.Length:mm\\:ss}\n\n" +
                                       $"**Queue Length:** {queue.Count} tracks";
 
             return musicDesc;
+        }
+
+        private void StartEmbedUpdater(InteractionContext ctx, LavalinkGuildConnection conn, LavalinkTrack track)
+        {
+            // Cancel any previous updater for this guild
+            if (_embedUpdaters.TryRemove(ctx.Guild.Id, out var oldCts))
+                oldCts.Cancel();
+
+            var cts = new CancellationTokenSource();
+            _embedUpdaters[ctx.Guild.Id] = cts;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    while (!cts.Token.IsCancellationRequested && conn.CurrentState.CurrentTrack != null)
+                    {
+                        var position = conn.CurrentState.PlaybackPosition;
+                        var desc = await MusicUpdateAsync(ctx, track, position);
+                        var embed = new DiscordEmbedBuilder
+                        {
+                            Title = "Now Playing:",
+                            Description = desc,
+                            Color = DiscordColor.Blue
+                        };
+                        await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                        await Task.Delay(TimeSpan.FromSeconds(5), cts.Token);
+                    }
+                }
+                catch (TaskCanceledException) { }
+            }, cts.Token);
         }
 
         // Play song command
@@ -117,6 +154,7 @@ namespace Lytheria.Commands
                         Description = $"**{musicTrack.Title}** has been added to the queue.",
                         Color = DiscordColor.Orange
                     };
+
                     await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(queueEmbed));
                 }
                 else
@@ -132,6 +170,8 @@ namespace Lytheria.Commands
                         Color = DiscordColor.Blue
                     };
 
+                    StartEmbedUpdater(ctx, conn, musicTrack);
+
                     await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(nowPlayingEmbed));
 
                     conn.PlaybackFinished += async (s, e) =>
@@ -139,14 +179,13 @@ namespace Lytheria.Commands
                         if (queue.TryDequeue(out var nextTrack))
                         {
                             await conn.PlayAsync(nextTrack);
-
-                            var nextTrackDescription = await MusicUpdateAsync(ctx, nextTrack, TimeSpan.Zero);
-                            var nowPlayingEmbed = new DiscordEmbedBuilder()
-                            {
-                                Title = $"Now playing ...",
-                                Description = nextTrackDescription,
-                                Color = DiscordColor.Blue
-                            };
+                            StartEmbedUpdater(ctx, conn, nextTrack);
+                        }
+                        else
+                        {
+                            // Cancel updater when queue is empty
+                            if (_embedUpdaters.TryRemove(ctx.Guild.Id, out var cts))
+                                cts.Cancel();
                         }
                     };
                 }
