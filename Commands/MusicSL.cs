@@ -51,11 +51,10 @@ namespace Lytheria.Commands
             string displayTitle = track.Title.Length > 50 ? track.Title.Substring(0,50) + ". . ." : track.Title;
 
             string musicDesc = $"**Title:** {displayTitle} \n\n" +
-                                      "```" +
-                                      $"**Author:** {track.Author,-20} **Requested by:** {ctx.User.Username}\n" +
-                                      "```\n" +
+                                      $"**Author:** {track.Author}\n\n" +
+                                      $"**Requested by:** {ctx.User.Username}\n\n" +
                                       $"{currentPosition:mm\\:ss} {bar} {track.Length:mm\\:ss}\n\n" +
-                                      $"**Queue Length:** {queue.Count} tracks";
+                                      $"**Queue Length:** {queue.Count} tracks"; 
 
             return musicDesc;
         }
